@@ -9,9 +9,12 @@ On OOM kill kernel would show stack, list of processes within cgroup/pod/contain
 
 We knew that some processes were killed, but we do not know which and what they were doing/processing at the moment of kill.
 
-Fortunately php code is using cli_set_process_title, so if you jump into cgroup/container you could see some meaninfull ps output.
-Unfortunately that output, is not available when kernel OOM arrives, nor container pids are shown.
+Fortunately php code is using cli_set_process_title to set info of what each pid is running, 
+so if you jump into cgroup/container you could see some meaninfull ps output.
+Unfortunately that output, is not available when kernel OOM arrives, and host pids not namespace/container pids are shown.
 
-Here is a small bpftrace script that tracks those php processes that set process title, and if they're got OOM killed it reports them.
+Here is a small bpftrace script that tracks those php processes that set process title catched with php bpf uprobe set_ps_title.
+Process title is being kept in associative array for each pid, so it is reported back to bpftrace run of this script if
+tracked php process is being OOM killed.
 
 

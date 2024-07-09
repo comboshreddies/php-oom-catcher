@@ -1,0 +1,21 @@
+BEGIN
+{
+  printf("Tracing php set title and oom kills\n");
+}
+
+k:oom_kill_process
+/comm=="php"/ {
+  printf("%d %s %d -> %s <-\n",pid,probe,cgroup,@phpSetTitle[pid]);
+}
+
+t:sched:sched_process_exit
+/comm=="php"/ {
+  delete(@phpSetTitle[pid]);
+}
+
+u:/usr/bin/php:set_ps_title
+/comm=="php"/
+{
+  @phpSetTitle[pid]=str(arg0);
+}
+
